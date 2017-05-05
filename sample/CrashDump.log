@@ -1,0 +1,120 @@
+================================================================================
+Level		: Exception
+Timestamp	: 1493987415
+Exc.Type    : TypeError
+RuntimeMsg	: <class 'TypeError'> at line: 704
+Traceback	: 
+	Stack 0
+		fname		: C:\Users\chenc\Desktop\PyPokemon-master\PokemonFinalProjectV1\main.py
+		lineno		: 704
+		func		: <module>
+		codectx		: 
+					                result = uBackpack.render(evt, wm)[1]
+					                if result is not None and result != 0:
+					                        uBackpack.release(wm)
+					
+					                # WindowsManager should always stay above the world
+					                for hWnd, msg, surface, pos in wm.DispatchMessage(evt):
+					                        screen.blit(surface, pos)
+					
+					                # Present
+					                pygame.display.flip()
+
+		index		: 5
+
+
+	Stack 1
+		fname		: C:\Users\chenc\Desktop\PyPokemon-master\PokemonFinalProjectV1\rgine\windows.py
+		lineno		: 273
+		func		: DispatchMessage
+		codectx		: 
+								if i == self._current["topmost"] and changed:
+									msg = self.WM_SETFOCUS
+									cbResult = self._windows[i].callback(_RgineEvent, msg)
+								elif i == self._current["topmost"]:
+									msg = self.WM_NULL
+									cbResult = self._windows[i].callback(_RgineEvent, msg)
+								elif i == last_topmost and changed:
+									msg = self.WM_KILLFOCUS
+									cbResult = self._windows[i].callback(_RgineEvent, msg)
+								if cbResult:
+
+		index		: 5
+
+
+	Stack 2
+		fname		: C:\Users\chenc\Desktop\PyPokemon-master\PokemonFinalProjectV1\backpack.py
+		lineno		: 249
+		func		: callback
+		codectx		: 
+											surf = pygame.Surface((400, 300), pygame.SRCALPHA)
+											surf.fill((111, 111, 111, 20))
+											self._create_w_pokemon(surf)
+											self._update_current_pokemon()
+										elif self._ctab == 2:
+											r = self.player.useItem(self._askbox_item, self.other)
+											if r == 1:  # ITEM_CAUGHT
+												self._state = 1
+												return True
+											self._wm.DestroyWindow(self._main_window_backpack)
+
+		index		: 5
+
+
+	Stack 3
+		fname		: C:\Users\chenc\Desktop\PyPokemon-master\PokemonFinalProjectV1\Combinedv2.py
+		lineno		: 1096
+		func		: useItem
+		codectx		: 
+					                                if item_id in self.backpack:
+					                                                del self.backpack[item_id]
+					
+					                def useItem(self, item_id, other=None):
+					                                if item_id in self.backpack:
+					                                                r = self.backpack[item_id].use(other)
+					                                                if self.backpack[item_id].count <= 0:
+					                                                                del self.backpack[item_id]
+					                                                return r
+					                                raise ValueError(item_id)
+
+		index		: 5
+
+
+	Stack 4
+		fname		: C:\Users\chenc\Desktop\PyPokemon-master\PokemonFinalProjectV1\Combinedv2.py
+		lineno		: 1187
+		func		: use
+		codectx		: 
+					                def getType(self):
+					                                return items[self.name][-1][0]
+					
+					                def use(self, other):
+					                                if self.count <= 0: raise ValueError(self.count)
+					                                result = self.apply(other)
+					                                if result is not None: self.count -= 1
+					                                return result
+					
+					                def apply(self, other):
+
+		index		: 5
+
+
+	Stack 5
+		fname		: C:\Users\chenc\Desktop\PyPokemon-master\PokemonFinalProjectV1\Combinedv2.py
+		lineno		: 1269
+		func		: apply
+		codectx		: 
+					                                                                pkmon.hp+= item(items[self.name][0])
+					                                                                if pkmon.hp+item(items[self.name][0])>pkmon.maxhp:
+					                                                                                pkmon.hp=pkmon.maxhp
+					
+					                                                elif self.name=="Hyper Potion":
+					                                                                pkmon.hp+= item(items[self.name][0])
+					                                                                if pkmon.hp+item(items[self.name][0])>pkmon.maxhp:
+					                                                                                pkmon.hp=pkmon.maxhp
+					
+					                                                elif self.name=="Max Potion":
+
+		index		: 5
+
+
