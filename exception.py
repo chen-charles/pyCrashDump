@@ -22,14 +22,14 @@ import time
 import pickle
 
 # presets
-_print = print
+_print = sys.stderr.write
 def __void(*args): pass
 if os.name == "nt":
-	import ctypes
-	__user32 = ctypes.windll.LoadLibrary("user32.dll")
-	def __msgbox(text="Message", title="Title"): __user32.MessageBoxW(0,str(text),str(title),0x00000010|0x00000000|0x00001000|0x00010000|0x00040000)
+    import ctypes
+    __user32 = ctypes.windll.LoadLibrary("user32.dll")
+    def __msgbox(text="Message", title="Title"): __user32.MessageBoxW(0,str(text).decode('ascii'),str(title).decode('ascii'),0x00000010|0x00000000|0x00001000|0x00010000|0x00040000)
 else:
-	def __msgbox(text="Message", title="Title"): _print(text)
+    def __msgbox(text="Message", title="Title"): _print(text)
 
 
 # configurations
@@ -37,7 +37,7 @@ else:
 _CRASHDUMP_VERSION = 0
 
 # debug
-_print = print
+_print = sys.stderr.write
 _msgbox = __msgbox
 
 # # release
@@ -62,76 +62,76 @@ Traceback	: %s
 
 _stackinfo = \
 '''
-	Stack %s
-		fname		: %s
-		lineno		: %s
-		func		: %s
-		codectx		: %s
-		index		: %s
+    Stack %s
+        fname		: %s
+        lineno		: %s
+        func		: %s
+        codectx		: %s
+        index		: %s
 
 '''
 
 class error(Exception):
-	def __init__(self, msg, err, e_level="Exception", c_context=10, logfile="CrashDump.log", dumpfile="CrashDump.dump"):
-		_print("Starting CrashDump ... ")
-		self.msg = msg
-		addmsg = str()
-		stackinfo = []
-		if not issubclass(type(err), Exception): err = Exception(msg)
-		self.error = err
-		try: c_context = int(c_context)
-		except ValueError: c_context = 10
-		stack = inspect.trace(c_context)
-		try:
-			_print("-> collecting stack trace ... ")
-			j = 0
-			for i in map(list, stack):
-				i[4] = "\n"+"".join(list(map(lambda x: "\t"*5+x, i[4])))
-				t = (str(j), ) + tuple(map(str, i[1:]))
-				stackinfo.append(_stackinfo%t)
-				j += 1
-			addmsg += "log->%s\t"%(os.getcwd()+os.sep+logfile)
-		except Exception:
-			addmsg += "log failed\t"
-		finally:
-			log_text = _logfmt%(str(e_level), int(time.time()), type(err).__name__, msg, "".join(stackinfo))
+    def __init__(self, msg, err, e_level="Exception", c_context=10, logfile="CrashDump.log", dumpfile="CrashDump.dump"):
+        _print("Starting CrashDump ... ")
+        self.msg = msg
+        addmsg = str()
+        stackinfo = list()
+        if not issubclass(type(err), Exception): err = Exception(msg)
+        self.error = err
+        try: c_context = int(c_context)
+        except ValueError: c_context = 10
+        stack = inspect.trace(c_context)
+        try:
+            _print("-> collecting stack trace ... ")
+            j = 0
+            for i in map(list, stack):
+                i[4] = "\n"+"".join(list(map(lambda x: "\t"*5+x, i[4])))
+                t = (str(j), ) + tuple(map(str, i[1:]))
+                stackinfo.append(_stackinfo%t)
+                j += 1
+            addmsg += "log->%s\t"%(os.getcwd()+os.sep+logfile)
+        except Exception:
+            addmsg += "log failed\t"
+        finally:
+            log_text = _logfmt%(str(e_level), int(time.time()), type(err).__name__, msg, "".join(stackinfo))
 
-			try:
-				if dumpfile is not None:
-					_print("-> collecting final environmental data ... ")
-					envdump = dict()
-					envdump["version"] = _CRASHDUMP_VERSION
-					envdump["error"] = err
-					envdump["log"] = log_text
+            try:
+                if dumpfile is not None:
+                    _print("-> collecting final environmental data ... ")
+                    envdump = dict()
+                    envdump["version"] = _CRASHDUMP_VERSION
+                    envdump["error"] = err
+                    envdump["log"] = log_text
 
-					j = 0
-					for i in map(list, stack):
-						locals = dict()
-						globals = dict()
-						for field, value in i[0].f_globals.items():
-							try: globals[field] = pickle.dumps(value)
-							except: globals[field] = pickle.dumps(str(value))
-						for field, value in i[0].f_locals.items():
-							try: locals[field] = pickle.dumps(value)
-							except: locals[field] = pickle.dumps(str(value))
-						envdump[j] = {"locals": locals, "globals": globals}
-						j += 1
-					envdump["nItems"] = j
-					with open(dumpfile, "wb") as f: pickle.dump(envdump, f)
-					addmsg += "envdump->%s\t"%(os.getcwd()+os.sep+dumpfile)
-				else:
-					addmsg += "envdump disabled\t"
-			except Exception:
-				addmsg += "envdump failed\t"
-			finally:
-				del stack
+                    j = 0
+                    for i in map(list, stack):
+                        locals = dict()
+                        globals = dict()
+                        for field, value in i[0].f_globals.items():
+                            try: globals[field] = pickle.dumps(value)
+                            except: globals[field] = pickle.dumps(str(value))
+                        for field, value in i[0].f_locals.items():
+                            try: locals[field] = pickle.dumps(value)
+                            except: locals[field] = pickle.dumps(str(value))
+                        envdump[j] = {"locals": locals, "globals": globals}
+                        j += 1
+                    envdump["nItems"] = j
+                    with open(dumpfile, "wb") as f: pickle.dump(envdump, f)
+                    addmsg += "envdump->%s\t"%(os.getcwd()+os.sep+dumpfile)
+                else:
+                    addmsg += "envdump disabled\t"
+            except Exception:
+                addmsg += "envdump failed\t"
+            finally:
+                del stack
 
-		with open(str(logfile), "w") as f: f.write(log_text)
+        with open(str(logfile), "w") as f: f.write(log_text)
 
-		_print("-> Finished. ")
-		_msgbox("CrashDump Result:\n"+addmsg.replace("\t", "\n"), "CrashDump")
+        _print("-> Finished. ")
+        _msgbox("CrashDump Result:\n"+addmsg.replace("\t", "\n"), "CrashDump")
 
-	def __str__(self): return type(self.error).__name__ + "(" + str(self.error) + "): " + self.msg
+    def __str__(self): return type(self.error).__name__ + "(" + str(self.error) + "): " + self.msg
 
 
 
